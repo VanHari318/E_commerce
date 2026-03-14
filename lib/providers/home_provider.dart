@@ -73,6 +73,8 @@ class HomeProvider extends ChangeNotifier {
 
   /// Pull-to-refresh: reset and reload
   Future<void> refresh() async {
+    _searchQuery = '';
+    _searchResults = [];
     _products = [];
     _hasMore = true;
     _error = null;

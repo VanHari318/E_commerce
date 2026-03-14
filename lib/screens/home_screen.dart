@@ -29,6 +29,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
   bool _isSearchBarSticky = false;
 
   @override
@@ -41,6 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -59,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _onRefresh() async {
+    _searchController.clear();
     await context.read<HomeProvider>().refresh();
   }
 
@@ -123,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           const SizedBox(height: 8),
                           // Search bar
-                          _SearchBar(isSticky: _isSearchBarSticky),
+                          _SearchBar(isSticky: _isSearchBarSticky, controller: _searchController),
                         ],
                       ),
                     ),
@@ -134,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
               title: _isSearchBarSticky
                   ? Padding(
                       padding: const EdgeInsets.only(right: 8),
-                      child: _SearchBar(isSticky: true),
+                      child: _SearchBar(isSticky: true, controller: _searchController),
                     )
                   : null,
             ),
@@ -338,8 +341,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
 class _SearchBar extends StatelessWidget {
   final bool isSticky;
+  final TextEditingController controller;
 
-  const _SearchBar({required this.isSticky});
+  const _SearchBar({required this.isSticky, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -356,6 +360,7 @@ class _SearchBar extends StatelessWidget {
             : null,
       ),
       child: TextField(
+        controller: controller,
         onChanged: (value) {
           context.read<HomeProvider>().search(value);
         },
@@ -374,6 +379,19 @@ class _SearchBar extends StatelessWidget {
             Icons.search,
             size: 18,
             color: isSticky ? Colors.white70 : Colors.grey.shade500,
+          ),
+          suffixIcon: ValueListenableBuilder<TextEditingValue>(
+            valueListenable: controller,
+            builder: (context, value, child) {
+              if (value.text.isEmpty) return const SizedBox.shrink();
+              return IconButton(
+                icon: Icon(Icons.clear, size: 16, color: isSticky ? Colors.white70 : Colors.grey.shade500),
+                onPressed: () {
+                  controller.clear();
+                  context.read<HomeProvider>().search('');
+                },
+              );
+            },
           ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 8),
