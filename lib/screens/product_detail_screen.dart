@@ -376,12 +376,21 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   child: Row(
                     children: [
                       Expanded(
-                        child: OutlinedButton(
+                        child: ElevatedButton.icon(
                           onPressed: _openVariationSheet,
-                          style: OutlinedButton.styleFrom(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 12)),
-                          child: const Text('Thêm vào giỏ hàng'),
+                          icon: const Icon(Icons.add_shopping_cart_outlined),
+                          label: Text('Thêm vào giỏ hàng',
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w600)),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            backgroundColor: theme.colorScheme.primary,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 4,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8),
