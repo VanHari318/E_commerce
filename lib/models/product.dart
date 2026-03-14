@@ -23,7 +23,7 @@ class Product {
   final double price;
   final String description;
   final String category;
-  final String image;
+  final List<String> images;
   final ProductRating rating;
   final String tag;
 
@@ -33,23 +33,38 @@ class Product {
     required this.price,
     required this.description,
     required this.category,
-    required this.image,
+    required this.images,
     required this.rating,
     required this.tag,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
+    // Determine images list, supporting both old String format and new List format
+    List<String> imagesList = [];
+    if (json['images'] is List) {
+      imagesList = List<String>.from(json['images'] as List);
+    } else if (json['images'] is String) {
+      String imgsString = json['images'] as String;
+      if (imgsString.contains(',')) {
+        imagesList = imgsString.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+      } else {
+        imagesList = [imgsString];
+      }
+    } else if (json['image'] is String) {
+      imagesList = [json['image'] as String];
+    }
+
     return Product(
       id: json['id'] as int,
       title: json['title'] as String,
       price: (json['price'] as num).toDouble(),
       description: json['description'] as String,
       category: json['category'] as String,
-      image: json['image'] as String,
+      images: imagesList,
       rating: ProductRating.fromJson(
         json['rating'] as Map<String, dynamic>,
       ),
-      tag: json['tag'] as String? ?? '', // Support backward compatibility with missing tags
+      tag: json['tag'] as String? ?? '', 
     );
   }
 
@@ -59,10 +74,13 @@ class Product {
     'price': price,
     'description': description,
     'category': category,
-    'image': image,
+    'images': images,
     'rating': rating.toJson(),
     'tag': tag,
   };
+
+  /// Getter for backward compatibility or simple display
+  String get image => images.isNotEmpty ? images.first : '';
 
   /// Formatted price string (e.g. "$15.99")
   String get formattedPrice => '\$${price.toStringAsFixed(2)}';

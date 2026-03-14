@@ -9,6 +9,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import '../models/product.dart';
 import '../providers/cart_provider.dart';
 import '../widgets/cart_badge_icon.dart';
@@ -26,9 +27,19 @@ class ProductDetailScreen extends StatefulWidget {
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   int _currentPage = 0;
   bool _descExpanded = false;
+  final CarouselSliderController _carouselController = CarouselSliderController();
 
-  // Simulate multiple images: if only one image exists, replicate it so slider works
-  List<String> get _images => [widget.product.image];
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  List<String> get _images => widget.product.images;
 
   void _openVariationSheet() {
     showModalBottomSheet<void>(
@@ -165,6 +176,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final product = widget.product;
+    debugPrint('ProductDetail: ${product.title} has ${product.images.length} images.');
     final originalPrice = (product.price * 1.2).toStringAsFixed(2);
 
     return Scaffold(
@@ -195,11 +207,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       height: 320,
                       child: Stack(
                         children: [
-                          PageView.builder(
+                          CarouselSlider.builder(
+                            carouselController: _carouselController,
                             itemCount: _images.length,
-                            onPageChanged: (i) =>
-                                setState(() => _currentPage = i),
-                            itemBuilder: (context, index) {
+                            options: CarouselOptions(
+                              height: 320,
+                              viewportFraction: 1.0,
+                              enableInfiniteScroll: false, // Set to false to see the ends
+                              onPageChanged: (index, reason) {
+                                setState(() => _currentPage = index);
+                              },
+                            ),
+                            itemBuilder: (context, index, realIndex) {
                               final url = _images[index];
                               final child = CachedNetworkImage(
                                 imageUrl: url,
@@ -212,7 +231,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                     size: 80),
                               );
 
-                              // Ensure Hero tag exists on first image for smooth transition
                               if (index == 0) {
                                 return Center(
                                   child: Hero(
@@ -224,31 +242,49 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               return Center(child: child);
                             },
                           ),
+                          // Image counter (e.g. 1/3)
+                          if (_images.length > 1)
+                            Positioned(
+                              top: 12,
+                              right: 12,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.5),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  '${_currentPage + 1}/${_images.length}',
+                                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
                           // Dots
-                          Positioned(
-                            bottom: 8,
-                            left: 0,
-                            right: 0,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: List.generate(
-                                _images.length,
-                                (i) => AnimatedContainer(
-                                  duration: const Duration(milliseconds: 250),
-                                  margin:
-                                      const EdgeInsets.symmetric(horizontal: 4),
-                                  width: _currentPage == i ? 10 : 6,
-                                  height: 6,
-                                  decoration: BoxDecoration(
-                                    color: _currentPage == i
-                                        ? theme.colorScheme.primary
-                                        : Colors.grey.shade300,
-                                    borderRadius: BorderRadius.circular(3),
+                          if (_images.length > 1)
+                            Positioned(
+                              bottom: 8,
+                              left: 0,
+                              right: 0,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: List.generate(
+                                  _images.length,
+                                  (i) => AnimatedContainer(
+                                    duration: const Duration(milliseconds: 250),
+                                    margin:
+                                        const EdgeInsets.symmetric(horizontal: 4),
+                                    width: _currentPage == i ? 10 : 6,
+                                    height: 6,
+                                    decoration: BoxDecoration(
+                                      color: _currentPage == i
+                                          ? theme.colorScheme.primary
+                                          : Colors.grey.shade300,
+                                      borderRadius: BorderRadius.circular(3),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
                         ],
                       ),
                     ),
