@@ -58,8 +58,10 @@ class ProductCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Tag badge
-                    _TagBadge(tag: product.tag),
-                    const SizedBox(height: 4),
+                    if (product.tag.isNotEmpty) ...[
+                      _TagBadge(tag: product.tag),
+                      const SizedBox(height: 4),
+                    ],
 
                     // Product name (max 2 lines)
                     Text(
@@ -123,6 +125,10 @@ class _TagBadge extends StatelessWidget {
         return Colors.orange;
       case 'Giảm 50%':
         return Colors.red;
+      case 'Flash Sale':
+        return Colors.purple;
+      case 'Mới':
+        return Colors.green;
       default:
         return Colors.blue.shade700;
     }
@@ -130,6 +136,8 @@ class _TagBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (tag.isEmpty) return const SizedBox.shrink();
+    
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
       decoration: BoxDecoration(

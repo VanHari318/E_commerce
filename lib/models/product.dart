@@ -25,6 +25,7 @@ class Product {
   final String category;
   final String image;
   final ProductRating rating;
+  final String tag;
 
   const Product({
     required this.id,
@@ -34,6 +35,7 @@ class Product {
     required this.category,
     required this.image,
     required this.rating,
+    required this.tag,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -47,6 +49,7 @@ class Product {
       rating: ProductRating.fromJson(
         json['rating'] as Map<String, dynamic>,
       ),
+      tag: json['tag'] as String? ?? '', // Support backward compatibility with missing tags
     );
   }
 
@@ -58,6 +61,7 @@ class Product {
     'category': category,
     'image': image,
     'rating': rating.toJson(),
+    'tag': tag,
   };
 
   /// Formatted price string (e.g. "$15.99")
@@ -70,12 +74,5 @@ class Product {
       return 'Đã bán ${(sold / 1000).toStringAsFixed(1)}k';
     }
     return 'Đã bán $sold';
-  }
-
-  /// Tag label based on rating
-  String get tag {
-    if (rating.rate >= 4.5) return 'Yêu thích';
-    if (price < 20) return 'Giảm 50%';
-    return 'Mall';
   }
 }
