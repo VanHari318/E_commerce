@@ -20,7 +20,7 @@ class CartBadgeIcon extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: badges.Badge(
-              showBadge: cart.itemCount > 0,
+              showBadge: true, // Always show the badge
               badgeContent: Text(
                 cart.itemCount > 99 ? '99+' : cart.itemCount.toString(),
                 style: const TextStyle(

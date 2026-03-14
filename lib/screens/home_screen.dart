@@ -19,7 +19,6 @@ import '../widgets/category_row.dart';
 import '../widgets/product_card.dart';
 import 'cart_screen.dart';
 import 'product_detail_screen.dart';
-import '../services/seed_data_button.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -93,7 +92,6 @@ class _HomeScreenState extends State<HomeScreen> {
               elevation: _isSearchBarSticky ? 4 : 0,
               // Cart icon with live badge
               actions: [
-                const SeedDataButton(),
                 CartBadgeIcon(onTap: _navigateToCart),
               ],
               // Flexible space containing app title + search bar
