@@ -63,4 +63,22 @@ class ProductService {
         .map((doc) => Product.fromJson(doc.data()))
         .toList();
   }
+
+  /// Search products by title OR description (case-insensitive substring)
+  Future<List<Product>> searchProducts(String query) async {
+    // For a small dataset, fetching all and filtering in-memory is acceptable
+    // since Firestore doesn't support native `LIKE %query%` queries.
+    final snapshot = await _firestore.collection('products').get();
+    
+    final lowerQuery = query.toLowerCase();
+    final allProducts = snapshot.docs
+        .map((doc) => Product.fromJson(doc.data()))
+        .toList();
+
+    return allProducts.where((p) {
+      final titleMatch = p.title.toLowerCase().contains(lowerQuery);
+      final descMatch = p.description.toLowerCase().contains(lowerQuery);
+      return titleMatch || descMatch;
+    }).toList();
+  }
 }

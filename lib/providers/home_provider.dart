@@ -13,6 +13,10 @@ class HomeProvider extends ChangeNotifier {
   List<String> _categories = [];
   String? _selectedCategory;
 
+  // Search
+  String _searchQuery = '';
+  List<Product> _searchResults = [];
+
   // Pagination
   final int _pageSize = 10;
   bool _isLoadingInitial = false;
@@ -22,14 +26,18 @@ class HomeProvider extends ChangeNotifier {
 
   // ─── Getters ───────────────────────────────────────────────────────────────
 
-  List<Product> get products => _products;
+  List<Product> get products => isSearching ? _searchResults : _products;
   List<String> get categories => _categories;
   String? get selectedCategory => _selectedCategory;
   bool get isLoadingInitial => _isLoadingInitial;
   bool get isLoadingMore => _isLoadingMore;
-  bool get hasMore => _hasMore;
+  // Disable infinite scroll & "hasMore" when searching
+  bool get hasMore => isSearching ? false : _hasMore;
   String? get error => _error;
-  bool get hasProducts => _products.isNotEmpty;
+  bool get hasProducts => products.isNotEmpty;
+  
+  bool get isSearching => _searchQuery.isNotEmpty;
+  String get searchQuery => _searchQuery;
 
   // ─── Initialization ────────────────────────────────────────────────────────
 
@@ -121,6 +129,30 @@ class HomeProvider extends ChangeNotifier {
       }
     } catch (e) {
       _error = e.toString();
+    } finally {
+      _isLoadingInitial = false;
+      notifyListeners();
+    }
+  }
+
+  /// Perform search on Title and Description
+  Future<void> search(String query) async {
+    _searchQuery = query.trim();
+    if (_searchQuery.isEmpty) {
+      _searchResults = [];
+      notifyListeners();
+      return;
+    }
+
+    _isLoadingInitial = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _searchResults = await _service.searchProducts(_searchQuery);
+    } catch (e) {
+      _error = e.toString();
+      debugPrint('HomeProvider search error: $_error');
     } finally {
       _isLoadingInitial = false;
       notifyListeners();

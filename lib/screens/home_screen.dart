@@ -140,10 +140,29 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
 
             // ── Body Content ──────────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+            Consumer<HomeProvider>(
+              builder: (context, home, child) {
+                // If searching, hide the banners and categories
+                if (home.isSearching || home.searchQuery.isNotEmpty) {
+                  return SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 16, top: 20, bottom: 10),
+                      child: Text(
+                        'Kết quả tìm kiếm cho "${home.searchQuery}"',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey.shade800,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                return SliverToBoxAdapter(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                   const SizedBox(height: 12),
                   // Banner Carousel
                   const BannerCarousel(),
@@ -193,9 +212,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 8),
                 ],
               ),
-            ),
+            );
+          },
+        ),
 
-            // ── Product Grid ──────────────────────────────────────────────
+        // ── Product Grid ──────────────────────────────────────────────
             Consumer<HomeProvider>(
               builder: (context, home, _) {
                 if (home.isLoadingInitial) {
@@ -223,6 +244,23 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: _ErrorWidget(
                       message: home.error!,
                       onRetry: home.fetchInitialData,
+                    ),
+                  );
+                }
+
+                if (home.isSearching && !home.hasProducts) {
+                  return SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 40),
+                      child: Center(
+                        child: Text(
+                          'Không tìm thấy sản phẩm nào phù hợp.',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ),
                     ),
                   );
                 }
@@ -318,6 +356,9 @@ class _SearchBar extends StatelessWidget {
             : null,
       ),
       child: TextField(
+        onChanged: (value) {
+          context.read<HomeProvider>().search(value);
+        },
         textAlignVertical: TextAlignVertical.center,
         style: TextStyle(
           fontSize: 13,
