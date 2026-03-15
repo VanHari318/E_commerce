@@ -71,10 +71,13 @@ class _CartScreenState extends State<CartScreen> {
         _selectedProductIds = cart.items.keys.toSet();
       }
     });
+    // Persist selection to provider so it's saved to SharedPreferences
+    cart.setSelectedCheckoutItems(_selectedProductIds);
   }
 
   /// Toggle single product selection
   void _toggleProductSelection(int productId) {
+    final cart = context.read<CartProvider>();
     setState(() {
       if (_selectedProductIds.contains(productId)) {
         _selectedProductIds.remove(productId);
@@ -82,6 +85,8 @@ class _CartScreenState extends State<CartScreen> {
         _selectedProductIds.add(productId);
       }
     });
+    // Persist selection changes immediately
+    cart.setSelectedCheckoutItems(_selectedProductIds);
   }
 
   /// Show confirm delete dialog when quantity reaches 0
@@ -143,6 +148,17 @@ class _CartScreenState extends State<CartScreen> {
       ),
       body: Consumer<CartProvider>(
         builder: (context, cart, _) {
+            // Ensure selected IDs stay in sync with available cart items
+            final missing = _selectedProductIds.where((id) => !cart.items.containsKey(id)).toList();
+            if (missing.isNotEmpty) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted) return;
+                setState(() {
+                  _selectedProductIds.removeAll(missing);
+                });
+                cart.setSelectedCheckoutItems(_selectedProductIds);
+              });
+            }
           // Empty state
           if (cart.isEmpty) {
             return Center(
