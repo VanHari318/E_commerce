@@ -138,11 +138,25 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       const Spacer(),
                       ElevatedButton(
                         onPressed: () {
-                          if (selectedSize == null || selectedColor == null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content:
-                                      Text('Vui lòng chọn kích cỡ và màu sắc')),
+                          final missing = <String>[];
+                          if (selectedSize == null) missing.add('kích cỡ');
+                          if (selectedColor == null) missing.add('màu sắc');
+
+                          if (missing.isNotEmpty) {
+                            showDialog<void>(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                title: const Text('Thiếu thông tin'),
+                                content: Text(
+                                  'Vui lòng chọn ${missing.join(' và ')}.',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(ctx).pop(),
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              ),
                             );
                             return;
                           }
