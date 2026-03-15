@@ -103,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 background: Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [primaryColor, primaryColor.withValues(alpha: 0.8)],
+                      colors: [primaryColor, primaryColor.withOpacity(0.8)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -352,11 +352,11 @@ class _SearchBar extends StatelessWidget {
       height: 38,
       decoration: BoxDecoration(
         color: isSticky
-            ? Colors.white.withValues(alpha: 0.2)
-            : Colors.white.withValues(alpha: 0.95),
+            ? Colors.white.withOpacity(0.2)
+            : Colors.white.withOpacity(0.95),
         borderRadius: BorderRadius.circular(20),
         border: isSticky
-            ? Border.all(color: Colors.white.withValues(alpha: 0.5))
+            ? Border.all(color: Colors.white.withOpacity(0.5))
             : null,
       ),
       child: TextField(

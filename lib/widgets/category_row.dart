@@ -109,14 +109,14 @@ class _CategoryChip extends StatelessWidget {
               height: 50,
               decoration: BoxDecoration(
                 color: isSelected
-                    ? color.withValues(alpha: 0.15)
+                    ? color.withOpacity(0.15)
                     : Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(16),
                 border: isSelected
                     ? Border.all(color: color, width: 2)
                     : Border.all(color: Colors.transparent),
                 boxShadow: isSelected
-                    ? [BoxShadow(color: color.withValues(alpha: 0.2), blurRadius: 6)]
+                    ? [BoxShadow(color: color.withOpacity(0.2), blurRadius: 6)]
                     : [],
               ),
               child: Icon(icon, size: 26, color: isSelected ? color : Colors.grey.shade700),

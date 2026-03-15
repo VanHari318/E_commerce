@@ -132,7 +132,7 @@ class _BannerItem extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.transparent, Colors.black.withValues(alpha: 0.55)],
+                colors: [Colors.transparent, Colors.black.withOpacity(0.55)],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
