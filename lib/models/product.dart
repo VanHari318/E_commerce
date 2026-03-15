@@ -1,6 +1,8 @@
 // models/product.dart
 // Product model matching FakeStore API response
 
+import 'package:intl/intl.dart';
+
 class ProductRating {
   final double rate;
   final int count;
@@ -83,7 +85,15 @@ class Product {
   String get image => images.isNotEmpty ? images.first : '';
 
   /// Formatted price string (e.g. "$15.99")
-  String get formattedPrice => '\$${price.toStringAsFixed(2)}';
+  String get formattedPrice => NumberFormat.simpleCurrency(locale: 'en_US').format(price);
+
+  /// Formatted price in VND (approximate, using a static conversion rate)
+  String get formattedPriceVnd {
+    const rate = 23000; // 1 USD ~= 23,000 VND (approx)
+    final vnd = (price * rate).round();
+    final fmt = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ', decimalDigits: 0);
+    return fmt.format(vnd);
+  }
 
   /// Simulated sold count string for display
   String get soldCount {
