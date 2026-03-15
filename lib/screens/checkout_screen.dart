@@ -9,11 +9,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/cart_item.dart';
+import '../models/order.dart';
 import '../providers/cart_provider.dart';
+import '../providers/order_provider.dart';
 import 'home_screen.dart';
 
-class CheckoutScreen extends StatelessWidget {
+class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
+
+  @override
+  State<CheckoutScreen> createState() => _CheckoutScreenState();
+}
+
+class _CheckoutScreenState extends State<CheckoutScreen> {
+  String _selectedPaymentMethod = 'cod';
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +36,8 @@ class CheckoutScreen extends StatelessWidget {
       ),
       body: Consumer<CartProvider>(
         builder: (context, cart, _) {
-          final selectedItems = cart.getSelectedCheckoutItems();
+          final List<CartItem> selectedItems = cart.getSelectedCheckoutItems();
+
 
           if (selectedItems.isEmpty) {
             return Center(
@@ -119,24 +129,40 @@ class CheckoutScreen extends StatelessWidget {
                 // Placeholder payment method
                 Card(
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      const Padding(
+                        padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
+                        child: Text(
+                          'Phương thức thanh toán',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
                       ListTile(
                         leading: Radio<String>(
                           value: 'cod',
-                          groupValue: 'cod',
-                          onChanged: (_) {},
+                          groupValue: _selectedPaymentMethod,
+                          onChanged: (value) {
+                            setState(() => _selectedPaymentMethod = value!);
+                          },
                         ),
                         title: const Text('💵 COD - Thanh toán khi nhận hàng'),
-                        onTap: () {},
+                        onTap: () {
+                          setState(() => _selectedPaymentMethod = 'cod');
+                        },
                       ),
                       ListTile(
                         leading: Radio<String>(
                           value: 'momo',
-                          groupValue: 'cod',
-                          onChanged: (_) {},
+                          groupValue: _selectedPaymentMethod,
+                          onChanged: (value) {
+                            setState(() => _selectedPaymentMethod = value!);
+                          },
                         ),
                         title: const Text('💜 Momo'),
-                        onTap: () {},
+                        onTap: () {
+                          setState(() => _selectedPaymentMethod = 'momo');
+                        },
                       ),
                     ],
                   ),
@@ -166,6 +192,7 @@ class CheckoutScreen extends StatelessWidget {
     );
   }
 
+
   Future<void> _placeOrder(BuildContext context, List<CartItem> selectedItems,
       CartProvider cart) async {
     // Show success dialog
@@ -193,8 +220,20 @@ class CheckoutScreen extends StatelessWidget {
     );
 
     if (confirmed == true && context.mounted) {
+      // Save order to history
+      final order = OrderModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        items: List<CartItem>.from(selectedItems),
+        totalAmount: selectedItems.fold(0.0, (sum, item) => sum + item.totalPrice),
+        dateTime: DateTime.now(),
+        status: OrderStatus.pending,
+      );
+      context.read<OrderProvider>().addOrder(order);
+
       // Remove purchased items from cart
-      cart.removeItems(selectedItems.map((e) => e.product.id).toList());
+      cart.removeItems(selectedItems.map<int>((item) => item.product.id).toList());
+
+
 
       // Clear selected checkout items
       cart.clearSelectedCheckoutItems();

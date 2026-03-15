@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/cart_provider.dart';
 import 'providers/home_provider.dart';
+import 'providers/order_provider.dart';
 import 'screens/home_screen.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -31,8 +32,11 @@ class ECommerceApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CartProvider()),
         // Home screen data (products, categories, pagination)
         ChangeNotifierProvider(create: (_) => HomeProvider()),
+        // Order history management
+        ChangeNotifierProvider(create: (_) => OrderProvider()),
       ],
       child: MaterialApp(
+
         title: 'TH4 - Nhóm 11',
         debugShowCheckedModeBanner: false,
         theme: _buildTheme(),

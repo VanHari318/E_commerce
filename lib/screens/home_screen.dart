@@ -18,7 +18,9 @@ import '../widgets/cart_badge_icon.dart';
 import '../widgets/category_row.dart';
 import '../widgets/product_card.dart';
 import 'cart_screen.dart';
+import 'order_history_screen.dart';
 import 'product_detail_screen.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -95,8 +97,18 @@ class _HomeScreenState extends State<HomeScreen> {
               elevation: _isSearchBarSticky ? 4 : 0,
               // Cart icon with live badge
               actions: [
+                IconButton(
+                  icon: const Icon(Icons.history, color: Colors.white),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const OrderHistoryScreen()),
+                    );
+                  },
+                ),
                 CartBadgeIcon(onTap: _navigateToCart),
               ],
+
               // Flexible space containing app title + search bar
               flexibleSpace: FlexibleSpaceBar(
                 collapseMode: CollapseMode.pin,
